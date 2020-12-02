@@ -1,4 +1,5 @@
 <?php
+
 namespace app\api\controller;
 
 use app\api\facade\Response;
@@ -8,10 +9,11 @@ use app\api\facade\Response;
  * @author 马良 <1826888766@qq.com>
  * @date 2020-12-01
  */
-class Error 
+class Error
 {
     public function __call($method, $args)
     {
-        return Response::success("1");
+        $controller = \request()->controller();
+        return Response::error(1,'控制器 '. $controller . ' not found');
     }
 }

@@ -1,7 +1,6 @@
 <?php
 
 use app\api\facade\Response;
-use think\facade\Cache;
 use think\facade\Request;
 
 /**

@@ -40,10 +40,20 @@
 
                 {elseif $tabType == 2}
                 <ul class="layui-tab-title">
-                    <li class="layui-this">{$curMenu.name}</li>
+                    {php}
+                        $url = url("",[],false);
+                    {/php}
+                    {volist name="$tabData.menus" id="menu"}
+                    <li class="{$current['url']?($current['url'] == $curMenu['url']?'layui-this':''):($url==url($curMenu['url'],[],false)?'layui-this':'')}"
+                    >{$menu.name}</li>
+                    {/volist}
                 </ul>
                 {else /}
-
+                <style>
+                    .page-content .layui-tab-content{
+                        top: 0;
+                    }
+                </style>
                 {/if}
                 <div class="layui-tab-content">
                     <div class="layui-body">

@@ -1,7 +1,9 @@
 <?php
+
 namespace app\api\facade;
 
 use think\Facade;
+
 /**
  * @method static string getMessage(int $code) 根据错误码获取错误信息
  * @method static think\response\Json error($code,$msg="",$data=[]) 失败返回
@@ -11,7 +13,7 @@ use think\Facade;
  */
 class Response  extends  Facade
 {
-      /**
+    /**
      * 获取当前Facade对应类名
      * @access protected
      * @return string

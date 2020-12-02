@@ -56,6 +56,7 @@ class Menu extends Model
                 return $value;
             }
         }
+        // TODO: 对接权限
         return false;
     }
     /**
