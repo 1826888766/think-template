@@ -81,8 +81,6 @@ layui.define([
     ml.prototype.success = function () { }
 
     ml.prototype.render = function (config) {
-        debugger
-
         this.config = initConfig(config)
         renderSearchForm(this.config.search)
         renderTable(this.config.table)
@@ -90,7 +88,7 @@ layui.define([
         this.tableListen();
         this.success()
     }
-    ml.prototype.search = function () { }
+    ml.prototype.search = null
 
     ml.prototype.reload = function (config) {
         config && (this.config = initConfig(config));
@@ -108,11 +106,23 @@ layui.define([
 
     ml.prototype.tableInstance = tableInstance;
 
+    function createBtns(btns) {
+        var html = [];
+        $.each(btns, function () {
+            var btn = "<span onclick=add_tab('" + this.name + "','" + this.url + "') class='layui-btn " + (this.class || 'layui-btn-normal') + " '></span>"
+            html.push(btn)
+        })
+        return "<div class='layui-btn-group'>" + html.join("") + "</div>"
+    }
+
     function initConfig(config) {
         var filed = []
         $.each(config.cols[0], function () {
             if (this.search) {
                 filed.push(this)
+            }
+            if (this.field == "field") {
+                this['templet'] = this['templet'] || createBtns(this.btns)
             }
         })
         var new_config = {
@@ -177,17 +187,22 @@ layui.define([
 
 
     function renderTable(config) {
-        if (tableInstance !== undefined) {
-            tableInstance.reload(config)
-        } else {
-            tableInstance = table.render(config)
-        }
+        tableInstance = table.render(config)
+    }
+
+
+    function reloadTable(config) {
+        tableInstance.reload(config)
     }
 
     ml.prototype.searchListen = function () {
         var searchDom = $(this.config.search.elem)
+        var that = this;
         form.on("submit(mlSearch)", function (obj) {
-            typeof config.search == "function" && config.search(obj);
+            typeof that.search == "function" && that.search(obj);
+            reloadTable({
+                where: obj.field
+            })
             return false;
         })
 
@@ -196,28 +211,28 @@ layui.define([
 
         function inputChange() {
             var key = $(this).data('key');
-            var field = config.field[key]
+            var field = that.config.search.field[key]
             var data = {
                 type: "input",
                 value: $(this).val(),
                 name: field.name,
                 field: field
             }
-            config.field[key].value = data.value
-            typeof config.change == "function" && config.change(data, config);
+            that.config.search.field[key].value = data.value
+            typeof that.config.search.change == "function" && that.config.search.change(data, that.config.search);
         }
 
         function selectChange(obj) {
             var key = $(obj.elem).data('key');
-            var field = config.field[key]
+            var field = that.config.search.field[key]
             var data = {
                 type: "select",
                 value: obj.value,
                 name: field.name,
                 field: field
             }
-            config.field[key].value = obj.value
-            typeof config.change == "function" && config.change(data, config);
+            that.config.search.field[key].value = obj.value
+            typeof that.config.search.change == "function" && that.config.search.change(data, that.config.search);
         }
 
         $(".date").each(function () {
@@ -234,7 +249,7 @@ layui.define([
                 elem: this,
                 range: true,
                 mark: {
-                    
+
                 },
                 isInitValue: false,
                 done: dateChange
@@ -244,15 +259,15 @@ layui.define([
         function dateChange(value, date, endDate) {
             var elem = $(this)[0].elem;
             var key = $(elem).data('key');
-            var field = config.field[key]
+            var field = that.config.search.field[key]
             var data = {
                 type: "date",
                 value: value,
                 name: field.name,
                 field: field
             }
-            config.field[key].value = value
-            typeof config.change == "function" && config.change(data, config);
+            that.config.search.field[key].value = value
+            typeof that.config.search.change == "function" && that.config.search.change(data, that.config.search);
         }
     }
 
