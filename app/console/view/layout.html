@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="zh_CN">
+
+<head>
+    {include file="public/meta"}
+</head>
+
+<body class="index">
+    <div class="layui-layout layui-layout-admin">
+
+        {include file="public/header"}
+        {include file="public/menu"}
+        <div class="page-content">
+            {if $iframe}
+            <div class="layui-tab tab layui-tab-brief" lay-filter="xbs_tab" lay-allowclose="false">
+
+                <ul class="layui-tab-title">
+                    <li class="home">我的桌面</li>
+                </ul>
+                <div class="layui-unselect layui-form-select layui-form-selected" id="tab_right">
+                    <dl>
+                        <dd data-type="this">关闭当前</dd>
+                        <dd data-type="other">关闭其它</dd>
+                        <dd data-type="all">关闭全部</dd>
+                    </dl>
+                </div>
+                <div class="layui-tab-content">
+                    <div class="layui-tab-item layui-show">
+                        <iframe src='{:url("welcome",["is_iframe"=>1])}' frameborder="0" scrolling="yes"
+                            class="x-iframe"></iframe>
+                    </div>
+                </div>
+            </div>
+            {else /}
+            <div class="layui-tab tab layui-tab-brief" lay-filter="docDemoTabBrief">
+                {if $tabType == 1}
+                <ul class="layui-tab-title">
+                    <li class="layui-this">{$curMenu.name}</li>
+                </ul>
+
+                {elseif $tabType == 2}
+                <ul class="layui-tab-title">
+                    {php}
+                        $url = url("",[],false);
+                    {/php}
+                    {volist name="$tabData.menus" id="menu"}
+                    <li class="{$current['url']?($current['url'] == $curMenu['url']?'layui-this':''):($url==url($curMenu['url'],[],false)?'layui-this':'')}"
+                    >{$menu.name}</li>
+                    {/volist}
+                </ul>
+                {else /}
+                <style>
+                    .page-content .layui-tab-content{
+                        top: 0;
+                    }
+                </style>
+                {/if}
+                <div class="layui-tab-content">
+                    <div class="layui-body">
+                        {include file="public/crumb"}
+                        {__CONTENT__}
+                    </div>
+                </div>
+            </div>
+            {/if}
+            {include file="public/footer"}
+
+        </div>
+    </div>
+    {if isset($parent)&&$parent}
+    <script>
+        var $;
+        layui.use(['element', 'jquery'], function () {
+            $ = layui.$;
+            xadmin.add_tab("{$parent.name}", "{:url($parent['url'],['is_iframe'=>1])}")
+        })
+    </script>
+    {/if}
+
+</body>
+
+</html>
