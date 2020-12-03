@@ -102,9 +102,9 @@ abstract class BaseController
      * @date 2020-12-01
      * @param string $template
      * @param array $vars
-     * @return void
+     * @return string
      */
-    public function fetch($template="",$vars=[])
+    public function fetch($template="",$vars=[]):string
     {
         return View::fetch($template,$vars);
     }

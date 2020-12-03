@@ -39,7 +39,22 @@
             var interval = setInterval(function(){
                 var time = --wait.innerHTML;
                 if(time <= 0) {
+                    
+                    <?php if ($iframe) { ?> 
+                        <?php if($code == 1 && input('refersh') == 1){ ?>
+                        if(parent.layui.ml.tableInstance){
+                            parent.layui.ml.reloadTable()
+                        }else{
+                            parent.location.reload()
+                        }
+                        <?php } ?>
+
+                    var index = parent.layer.getFrameIndex(window.name); //先得到当前iframe层的索引
+                    parent.layer.close(index); //再执行关闭   
+                    <?php }else { ?>
                     location.href = href;
+                    <?php } ?>
+                    
                     clearInterval(interval);
                 };
             }, 1000);

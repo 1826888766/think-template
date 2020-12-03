@@ -41,7 +41,7 @@ class ConsoleBase extends BaseController
        
         $curMenu = Menu::getCurrent();
         if (!$curMenu) {
-            $this->error('节点不存在或无权限！', url('console/index/index'));
+            $this->error('节点不存在或无权限！');
         }
         if (!$this->request->isAjax()) {
             $this->assign('tableCols',[]);
@@ -95,7 +95,13 @@ class ConsoleBase extends BaseController
         View::config(['layout_on' => $layout, 'layout_name' => $layout_name]);
     }
 
-    protected function model()
+    /**
+     * 获取当前模型
+     * @author 马良 <1826888766@qq.com>
+     * @date 2020-12-03
+     * @return \think\Model
+     */
+    protected function model() : Model
     {
         return model($this->model);
     }

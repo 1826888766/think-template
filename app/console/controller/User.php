@@ -6,7 +6,6 @@ namespace app\console\controller;
 
 use app\console\ConsoleBase;
 use app\console\facade\Response;
-use ml\ColsItem;
 
 class User extends ConsoleBase
 {
@@ -27,12 +26,14 @@ class User extends ConsoleBase
                 ['field' => "id", 'title' => "ID", "search" => true, "sort" => true],
                 ['field' => "username", 'title' => "登录名", "search" => true],
                 ['field' => "realname", 'title' => "真实姓名", "search" => true],
-                ['field' => "nickname", 'title' => "昵称", "search" => true],
+                ['field' => "nickname", 'title' => "昵称", "search" => true, "edit" => true],
                 ['field' => "create_time", "range" => true, "type" => "date", 'title' => "创建时间", "search" => true],
                 ['field' => "update_time",  'title' => "更新时间"],
-                ['field' => "tools", 'title' => "操作",]
+                ['title' => "操作", "type" => "btn", "width" => 200, "btns" => [
+                    "edit" => ["name" => "编辑", "refersh" => true],
+                    "del" => ["name" => "删除", "confirm" => true, "class" => "layui-btn-danger"],
+                ]]
             ]],
-            "cellMinWidth" => "50",
         ];
         $this->assign('tableConfig', $tableConfig);
         return $this->fetch();
