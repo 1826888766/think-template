@@ -82,9 +82,11 @@ layui.define([
 
     ml.prototype.render = function (config) {
         this.config = initConfig(config)
-        renderSearchForm(this.config.search)
         renderTable(this.config.table)
+        renderToolbar(this.config.toolbar)
+        renderSearchForm(this.config.search)
         this.searchListen();
+        this.toolbarListen();
         this.tableListen();
         this.success()
     }
@@ -106,14 +108,66 @@ layui.define([
 
     ml.prototype.tableInstance = tableInstance;
 
+    function createUrl(name, params) {
+        var parentUrl = GetUrlRelativePath();
+        var param = ""
+        var relUrl = name
+        if (name.indexOf("?") != -1) {
+            relUrl = name.split("?")[0];
+            param = "?" + name.split("?")[1] + "&" + params
+        } else {
+            param = "?" + params
+        }
+        var a = relUrl.split("/")
+        var b = parentUrl.split("/")
+        var module = b[1]
+        var controller = b[2]
+        var action = b[3]
+        if (a.length == 3) {
+            module = a[0]
+            controller = a[1]
+            action = a[2]
+        } else if (a.length == 2) {
+            controller = a[0]
+            action = a[1]
+        } else if (a.length == 1) {
+            action = a[0]
+        } else if (a.length > 3) {
+            module = a[0]
+            controller = a[1]
+            action = name.substring(a[0].length + a[1].length - 1)
+        }
+        return ['', module, controller, action].join("/") + param
+    }
+
     function createBtns(btns) {
         var html = [];
-        $.each(btns, function () {
-            var btn = "<span onclick=add_tab('" + this.name + "','" + this.url + "') class='layui-btn " + (this.class || 'layui-btn-normal') + " '></span>"
+        $.each(btns, function (index) {
+            var url = this.url ? this.url : createUrl(index)
+            // 添加id 和扩展参数
+            url += "?id={{d.id}}&is_iframe=1&" + (this.param || '')
+            var btn = "<span " + (this.confirm ? "confirm='" + this.confirm + "'" : '') +
+                " onclick=add_tab('" + this.name + "','" + url + "') class='layui-btn layui-btn-sm " +
+                (this.ajax ? ' ajax ' : ' iframe ') +
+                (this.refersh ? ' refersh ' : '') +
+                (this.class || ' layui-btn-normal') + "'>" + this.name + "</span>"
             html.push(btn)
         })
         return "<div class='layui-btn-group'>" + html.join("") + "</div>"
     }
+
+    function createSwitch(name, config) {
+        var switchBtn = { text: "", value: 1, url: "status" }
+        switchBtn = $.extend(switchBtn, config)
+        var text = switchBtn.text || ""
+        var value = switchBtn.value || 1
+        var url = switchBtn.url ? createUrl(switchBtn.url, "id={{d.id}}") : createUrl('status?id={{d.id}}&field=' + name)
+        return "<div><input type='checkbox' name=" + name + " value=" + value
+            + " lay-skin='switch' lay-filter='changeSwitch' " +
+            "lay-text=' " + text + "' {{eq(d." + name + "," + value + ")?'checked':''}} "
+            + " data-href='" + url + "' ></div>";
+    }
+
 
     function initConfig(config) {
         var filed = []
@@ -121,21 +175,33 @@ layui.define([
             if (this.search) {
                 filed.push(this)
             }
-            if (this.field == "field") {
+            if (this.type == "tools") {
                 this['templet'] = this['templet'] || createBtns(this.btns)
+                this['fixed'] = "right"
+            } else if (this.type == "switch") {
+                this['templet'] = this['templet'] || createSwitch(this.field, this.switch)
             }
         })
+        var toolbar = [];
+        if ($.isArray(config.toolbar)) {
+            toolbar = config.toolbar;
+            delete config.toolbar;
+        }
         var new_config = {
             table: $.extend({
                 elem: "#mlTableData",
                 page: true,
+                cellMinWidth: 100,
                 url: GetUrlRelativePath()
-            }, config), search: {
+            }, config),
+            toolbar: $.extend({field:[],elem:"#mlTableDataToolbar"},toolbar),
+            search: {
                 elem: config.search_elem || "#mlTableDataSearch",
-                field: filed
+                field: filed,
+                search: config.search,
+                change: config.change
             }
         };
-
         return new_config;
     }
 
@@ -190,6 +256,29 @@ layui.define([
         tableInstance = table.render(config)
     }
 
+    function createToolbar(config){
+        var html = [];
+        $.each(config,function(index){
+            if(this.type == "btn"){
+                var url = this.url ? this.url : createUrl(index)
+            // 添加id 和扩展参数
+            url += "?id={{d.id}}&is_iframe=1&" + (this.param || '')
+            var btn = "<span " + (this.confirm ? "confirm='" + this.confirm + "'" : '') +
+                " onclick=add_tab('" + this.name + "','" + url + "') class='layui-btn layui-btn-sm " +
+                (this.ajax ? ' ajax ' : ' iframe ') +
+                (this.refersh ? ' refersh ' : '') +
+                (this.class || ' layui-btn-normal') + "'>" + this.name + "</span>"
+                html.push(btn)
+            }else{
+                html.push("<label class='layui-form-label'>"+ this.name +"</label>")
+            }
+        })
+    }
+
+    function renderToolbar(config) {
+        var html = createToolbar(config.field);
+        $(config.elem).html(html);
+    }
 
     function reloadTable(config) {
         tableInstance.reload(config)
@@ -199,10 +288,11 @@ layui.define([
         var searchDom = $(this.config.search.elem)
         var that = this;
         form.on("submit(mlSearch)", function (obj) {
-            typeof that.search == "function" && that.search(obj);
+            typeof that.config.search.search == "function" && that.config.search.search(obj);
             reloadTable({
                 where: obj.field
             })
+            layui.event('search(submit)',obj)
             return false;
         })
 
@@ -220,6 +310,7 @@ layui.define([
             }
             that.config.search.field[key].value = data.value
             typeof that.config.search.change == "function" && that.config.search.change(data, that.config.search);
+            layui.event('search(input)',data)
         }
 
         function selectChange(obj) {
@@ -233,6 +324,8 @@ layui.define([
             }
             that.config.search.field[key].value = obj.value
             typeof that.config.search.change == "function" && that.config.search.change(data, that.config.search);
+            layui.event('search(select)',data)
+            
         }
 
         $(".date").each(function () {
@@ -268,10 +361,14 @@ layui.define([
             }
             that.config.search.field[key].value = value
             typeof that.config.search.change == "function" && that.config.search.change(data, that.config.search);
+            layui.event('search(date)',data)
         }
     }
 
     ml.prototype.tableListen = function () {
+        // tableInstance.on("")
+    }
+    ml.prototype.toolbarListen = function () {
         // tableInstance.on("")
     }
 
