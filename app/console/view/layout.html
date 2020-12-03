@@ -41,16 +41,17 @@
                 {elseif $tabType == 2}
                 <ul class="layui-tab-title">
                     {php}
-                        $url = url("",[],false);
+                    $url = url("",[],false);
                     {/php}
                     {volist name="$tabData.menus" id="menu"}
-                    <li class="{$current['url']?($current['url'] == $curMenu['url']?'layui-this':''):($url==url($curMenu['url'],[],false)?'layui-this':'')}"
-                    >{$menu.name}</li>
+                    <li
+                        class="{$current['url']?($current['url'] == $curMenu['url']?'layui-this':''):($url==url($curMenu['url'],[],false)?'layui-this':'')}">
+                        {$menu.name}</li>
                     {/volist}
                 </ul>
                 {else /}
                 <style>
-                    .page-content .layui-tab-content{
+                    .page-content .layui-tab-content {
                         top: 0;
                     }
                 </style>
@@ -58,7 +59,13 @@
                 <div class="layui-tab-content">
                     <div class="layui-body">
                         {include file="public/crumb"}
-                        {__CONTENT__}
+                        <div class="layui-fluid">
+                            <div class="layui-row ">
+                                <div class="layui-col-md12">
+                                    {__CONTENT__}
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

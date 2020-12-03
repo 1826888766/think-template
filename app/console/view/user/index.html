@@ -1,19 +1,14 @@
-<div class="layui-fluid">
-    <div class="layui-row ">
-        <div class="layui-col-md12">
-            <div class="layui-card">
-                <div class="layui-card-body ">
-                    <form id="mlTableDataSearch" class="layui-form layui-form-pane">
+<div class="layui-card">
+    <div class="layui-card-body ">
+        <form id="mlTableDataSearch" class="layui-form layui-form-pane">
 
-                    </form>
-                </div>
-                <div class="layui-card-body ">
-                    <table  id="mlTableData"></table>
-                </div>
-            </div>
-        </div>
+        </form>
+    </div>
+    <div class="layui-card-body ">
+        <table id="mlTableData"></table>
     </div>
 </div>
+
 <script>
     var tableIns;
     var tableConfig = JSON.parse('{:json_encode($tableConfig,256)}');

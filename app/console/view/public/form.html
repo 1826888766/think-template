@@ -1,0 +1,16 @@
+<div class="layui-card">
+    <div class="layui-card-body ">
+        <form action="{:url($formConfig['action'])}" method="{$formConfig.method}" class="layui-form"
+            style="width: 800px;">
+            {:createFormHtml($formConfig.field)}
+            <div class="layui-form-item">
+                <label for="" class="layui-form-label"></label>
+                <div class="layui-input-block">
+                    <button class="layui-btn layui-btn-nomarl" type="submit" lay-submit
+                        lay-filter="mlFormSubmit">保存</button>
+                    <button class="layui-btn layui-btn-nomarl" type="button">返回</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

@@ -182,10 +182,10 @@ layui.define([
                 this['templet'] = this['templet'] || createSwitch(this.field, this.switch)
             }
         })
-        var toolbar = [];
-        if ($.isArray(config.toolbar)) {
+        var toolbar = {};
+        if (typeof config.toolbar == "object") {
             toolbar = config.toolbar;
-            delete config.toolbar;
+            delete config['toolbar'];
         }
         var new_config = {
             table: $.extend({
@@ -194,7 +194,7 @@ layui.define([
                 cellMinWidth: 100,
                 url: GetUrlRelativePath()
             }, config),
-            toolbar: $.extend({field:[],elem:"#mlTableDataToolbar"},toolbar),
+            toolbar: $.extend({ field: [], elem: "#mlTableDataToolbar" }, toolbar),
             search: {
                 elem: config.search_elem || "#mlTableDataSearch",
                 field: filed,
@@ -256,26 +256,28 @@ layui.define([
         tableInstance = table.render(config)
     }
 
-    function createToolbar(config){
+    function createToolbar(config) {
         var html = [];
-        $.each(config,function(index){
-            if(this.type == "btn"){
+        $.each(config, function (index) {
+            if (this.type == "btn") {
                 var url = this.url ? this.url : createUrl(index)
-            // 添加id 和扩展参数
-            url += "?id={{d.id}}&is_iframe=1&" + (this.param || '')
-            var btn = "<span " + (this.confirm ? "confirm='" + this.confirm + "'" : '') +
-                " onclick=add_tab('" + this.name + "','" + url + "') class='layui-btn layui-btn-sm " +
-                (this.ajax ? ' ajax ' : ' iframe ') +
-                (this.refersh ? ' refersh ' : '') +
-                (this.class || ' layui-btn-normal') + "'>" + this.name + "</span>"
+                // 添加id 和扩展参数
+                url += this.param ? ("?" + this.param) : '';
+                var btn = "<span " + (this.confirm ? "confirm='" + this.confirm + "'" : '') +
+                    " onclick=add_tab('" + this.name + "','" + url + "') class='layui-btn layui-btn-sm " +
+                    (this.method || ' view ') +
+                    (this.refersh ? ' refersh ' : '') +
+                    (this.class || ' layui-btn-normal') + "'>" + this.name + "</span>"
                 html.push(btn)
-            }else{
-                html.push("<label class='layui-form-label'>"+ this.name +"</label>")
+            } else {
+                html.push("<span class='layui-btn layui-btn-sm layui-btn-primary " + (this.class) + " '>" + this.name + " ：" + this.text + "</span>")
             }
         })
+        return "<div >" + html.join("") + "</div>"
     }
 
     function renderToolbar(config) {
+        debugger
         var html = createToolbar(config.field);
         $(config.elem).html(html);
     }
@@ -292,7 +294,7 @@ layui.define([
             reloadTable({
                 where: obj.field
             })
-            layui.event('search(submit)',obj)
+            layui.event('search(submit)', obj)
             return false;
         })
 
@@ -310,7 +312,7 @@ layui.define([
             }
             that.config.search.field[key].value = data.value
             typeof that.config.search.change == "function" && that.config.search.change(data, that.config.search);
-            layui.event('search(input)',data)
+            layui.event('search(input)', data)
         }
 
         function selectChange(obj) {
@@ -324,8 +326,8 @@ layui.define([
             }
             that.config.search.field[key].value = obj.value
             typeof that.config.search.change == "function" && that.config.search.change(data, that.config.search);
-            layui.event('search(select)',data)
-            
+            layui.event('search(select)', data)
+
         }
 
         $(".date").each(function () {
@@ -361,7 +363,7 @@ layui.define([
             }
             that.config.search.field[key].value = value
             typeof that.config.search.change == "function" && that.config.search.change(data, that.config.search);
-            layui.event('search(date)',data)
+            layui.event('search(date)', data)
         }
     }
 

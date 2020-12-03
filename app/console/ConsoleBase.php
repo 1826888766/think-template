@@ -15,7 +15,7 @@ use think\Model;
  */
 class ConsoleBase extends BaseController
 {
-    protected $iframe = 1;
+    protected $iframe = 0;
     // 当前控制器主要模型
     protected $model = "";
     // 当前控制器主要验证器
@@ -71,7 +71,7 @@ class ConsoleBase extends BaseController
             $this->assign('crumb', $crumb);
             $this->assign('tableConfig', []);
             $this->assign('curMenu', $curMenu);
-            $this->assign('tabType', 2);
+            $this->assign('tabType', 1);
             $this->assign('tabData', $tabData);
             parent::initialize();
         }

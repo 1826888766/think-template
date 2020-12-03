@@ -1,7 +1,7 @@
 <?php
 // 这是系统自动生成的公共文件
 
-function createMenuHtml($menus, $iframe = false,$is_child = false)
+function createMenuHtml($menus, $iframe = false, $is_child = false)
 {
     $html = [];
     foreach ($menus as $key => $value) {
@@ -9,12 +9,12 @@ function createMenuHtml($menus, $iframe = false,$is_child = false)
         $right = "";
         if (!empty($value['child'])) {
             $right = '<i class="iconfont nav_right">&#xe697;</i>';
-            $sub = createMenuHtml($value['child'],$iframe , 1);
+            $sub = createMenuHtml($value['child'], $iframe, 1);
             $a = "<a href='javascript:;'><i class='{$value['icon']}' lay-tips='{$value['name']}'></i><cite>{$value['name']}</cite>{$right}</a>{$sub}";
         } else {
-            if($iframe){
-                $url = url($value['url'],['is_iframe'=>1]);
-            }else{
+            if ($iframe) {
+                $url = url($value['url'], ['is_iframe' => 1]);
+            } else {
                 $url = url($value['url']);
             }
             $a = "<a href='javascript:;' onclick=add_tab('{$value['name']}','{$url}')><i class='{$value['icon']}' lay-tips='{$value['name']}'></i><cite>{$value['name']}</cite>{$right}</a>{$sub}";
@@ -29,6 +29,185 @@ function createMenuHtml($menus, $iframe = false,$is_child = false)
     return join('', $html);
 }
 
+function createFormItemHtml($item)
+{
+    $item['default'] = getField($item, 'default');
+    $__ORIGIN_VALUE = getField($item, 'value');
+    $item['value'] = decodeValueString(getField($item, 'value'));
+    $html = "<div class='layui-form-item'><label  class='layui-form-label'>{$item['label']}</label>";
+    switch ($item['type']) {
+        case 'radio':
+            $html .= '<div class="layui-input-block">';
+            foreach ($item['value'] as $radio) {
+                $html .=  "<input type='radio' title={$radio[1]} " . ($item['default'] == $radio[0] ? 'checked' : '') . " value={$radio[0]} name={$item['field']}>";
+            }
+            $html .= '</div>';
+            break;
+        case 'switch':
+            $html .= '<div class="layui-input-block">';
+            $html .= "<input type=checkbox name={$item['field']} lay-text=" . getField($item, 'text') . "
+                        value={$__ORIGIN_VALUE} lay-skin=switch>";
+            $html .= '</div>';
+            break;
+        case 'checkbox':
+            $html .= '<div class="layui-input-block">';
+            $item['default'] = is_array($item['default']) ?: explode(',', $item['default']);
+            foreach ($item['value'] as $checkbox) {
+                $html .=  "<input type='checkbox' " . (in_array($checkbox[0], $item['default']) ? 'checked' : '') . " class=layui-input
+                value={$checkbox[0]} title={$checkbox[1]} name={$item['field']}
+                lay-skin=" . getField($item, 'skin', 'primary') . ">";
+            }
+            $html .= '</div>';
+            break;
+        case 'select':
+            $html .= '<div class="layui-input-inline">';
+            $html .= "<select name={$item['field']}><option value=''>请选择</option>";
+            foreach ($item['value'] as $select) {
+                $html .=  "<option " . (getField($item, 'default') == $select[0] ? 'selected' : '') . " value={$select[0]}>{$select[1]}
+                        </option>";
+            }
+            $html .= "</select>";
+            $html .= '</div>';
+            break;
+        case 'password':
+            $html .= '<div class="layui-input-inline">';
+            $html .= " <input type=password autocomplete=off name={$item['field']} placeholder=请输入{$item['label']}
+                    class=layui-input>";
+            $html .= '</div>';
+            break;
+        case 'edit':
+            $html .= "<div class=layui-input-block><div id={$item['field']}></div>";
+            $html .= editor([$item['field']],getField($item,'editor_type','ueditor'));
+            $html .= '</div>';
+            break;
+        case 'textarea':
+                $html .= '<div class="layui-input-block">';
+                $html .= "<textarea  autocomplete=off rows=".getField($item,'rows')." cols=".getField($item,'cols')." name={$item['field']} placeholder=请输入{$item['label']}
+                class=layui-textarea></textarea>";
+                $html .= '</div>';
+                break;
+        default:
+            $html .= '<div class="layui-input-inline">';
+            $html .= " <input  autocomplete=off type=text name={$item['field']} placeholder=请输入{$item['label']}
+        class=layui-input>";
+            $html .= '</div>';
+            break;
+    }
+    if (!empty(getField($item, 'child', []))) {
+        $html .= createFormHtml($item['child']);
+    }
+    $html .= "</div>";
+    return $html;
+}
+
+function editor($obj = [], $name = 'ueditor', $url = '')
+{
+    $jsPath = '/static/js/editor/';
+
+    if (empty($url)) {
+        $url = url("system/annex/upload?full_path=yes&thumb=no&from=".$name);
+    }
+
+    switch (strtolower($name)) {
+        case 'ueditor':
+            $html = '<script src="'.$jsPath.'ueditor/ueditor.config.js"></script>';
+            $html .= '<script src="'.$jsPath.'ueditor/ueditor.all.min.js"></script>';
+            $html .= '<script src="'.$jsPath.'ueditor/plugins/135editor.js"></script>';
+            $html .= '<script>';
+            foreach ($obj as $k =>$v) {
+                $html .= 'var ue'.$k.' = UE.ui.Editor({serverUrl:"'.$url.'",initialFrameHeight:500,initialFrameWidth:"100%",autoHeightEnabled:false});ue'.$k.'.render("'.$v.'");';
+            }
+            $html .= '</script>';
+            break;
+        case 'kindeditor':
+            if (is_array($obj)) {
+                $obj = implode(',#', $obj);
+            }
+            $html = '<script src="'.$jsPath.'kindeditor/kindeditor-min.js"></script>
+                    <script>
+                        var editor;
+                        KindEditor.ready(function(K) {
+                            editor = K.create(\'#'.$obj.'\', {uploadJson: "'.$url.'",allowFileManager : false,minHeight:500, width:"100%",autoHeightEnabled:false, afterBlur:function(){this.sync();}});
+                        });
+                    </script>';
+            break;
+        case 'ckeditor':
+            $html = '<script src="'.$jsPath.'ckeditor/ckeditor.js"></script>';
+            $html .= '<script>';
+            foreach ($obj as  $v) {
+                $html .= 'CKEDITOR.replace("'.$v.'",{filebrowserImageUploadUrl:"'.$url.'"});';
+            }
+            $html .= '</script>';
+            break;
+        
+        default:
+            $html = '<link href="'.$jsPath.'umeditor/themes/default/css/umeditor.css" type="text/css" rel="stylesheet">';
+            $html .= '<script src="'.$jsPath.'umeditor/third-party/jquery.min.js"></script>';
+            $html .= '<script src="'.$jsPath.'umeditor/third-party/template.min.js"></script>';
+            $html .= '<script src="'.$jsPath.'umeditor/umeditor.config.js"></script>';
+            $html .= '<script src="'.$jsPath.'umeditor/umeditor.min.js"></script>';
+            $html .= '<script>';
+            foreach ($obj as  $k => $v) {
+                $html .= 'var um'.$k.' = UM.getEditor("'.$v.'", {
+                            initialFrameWidth:"100%"
+                            ,initialFrameHeight:"500"
+                            ,autoHeightEnabled:false
+                            ,imageUrl:"'.$url.'"
+                            ,imageFieldName:"upfile"});';
+            }
+            $html .= '</script>';
+            break;
+    }
+    return $html;
+}
+
+function createFormHtml($config)
+{
+    $html = [];
+    foreach ($config as $item) {
+        $html[] = createFormItemHtml($item);
+    }
+    return join("", $html);
+}
+/**
+ * 获取数组中的某一项
+ * @author 马良 <1826888766@qq.com>
+ * @date 2020-12-03
+ * @param [type] $obj
+ * @param [type] $field
+ * @param string $default
+ */
+function getField($obj, $field, $default = '')
+{
+    return isset($obj[$field]) ? $obj[$field] : $default;
+}
+/**
+ * 解析数值
+ * @author 马良 <1826888766@qq.com>
+ * @date 2020-12-03
+ * @param [type] $value
+ * @return void
+ */
+function decodeValueString($value)
+{
+    if (is_string($value)) {
+        $value = explode(',', $value);
+        $__NEW_VALUE = [];
+        foreach ($value as $v) {
+            $__NEW_VALUE[] = explode('|', $v);
+        }
+        $value = $__NEW_VALUE;
+    } else if (is_array($value) && !empty($value)) {
+        if (isset($value[0]['name'])) {
+            $__NEW_VALUE = [];
+            foreach ($value as $item) {
+                $__NEW_VALUE[] = [$item['value'], $item['name']];
+            }
+            $value = $__NEW_VALUE;
+        }
+    }
+    return $value;
+}
 
 /**
  * 生成查询条件
