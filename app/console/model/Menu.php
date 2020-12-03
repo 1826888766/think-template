@@ -10,7 +10,7 @@ use think\Model;
  * 系统菜单模型
  * @mixin \think\Model
  */
-class Menu extends Model
+class Menu extends BaseModel
 {
     /**
      * 生成主菜单 

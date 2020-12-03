@@ -7,10 +7,11 @@ namespace app\console\controller;
 use app\console\ConsoleBase;
 use app\console\facade\Response;
 
-class User extends ConsoleBase
+class Menu extends ConsoleBase
 {
-    protected $model = "User";
-    protected $validate = "User";
+
+    protected $model = "Menu";
+    protected $validate = "Menu";
 
     protected $validateScene = [];
 
@@ -24,18 +25,21 @@ class User extends ConsoleBase
             "cols" => [[
                 ['type' => "checkbox"],
                 ['field' => "id", 'title' => "ID", "search" => true, "sort" => true],
-                ['field' => "username", 'title' => "登录名", "search" => true],
-                ['field' => "realname", 'title' => "真实姓名", "search" => true],
-                ['field' => "nickname", 'title' => "昵称", "search" => true, "edit" => true],
-                ['field' => "create_time", "range" => true, "type" => "date", 'title' => "创建时间", "search" => true],
-                ['field' => "update_time",  'title' => "更新时间"],
+                ['field' => "name", 'title' => "菜单名称", "search" => true],
+                ['field' => "url", 'title' => "菜单链接"],
+                ['field' => "status", 'title' => "状态", "type" => "switch", "switch" => []],
+                ['field' => "is_show", 'title' => "是否显示", "type" => "switch", "switch" => ["url" => "is_show"]],
+                ['field' => "is_auth", 'title' => "是否验证权限", "type" => "switch", "switch" => ["url" => "is_auth"]],
                 ['title' => "操作", "type" => "tools", "width" => 200, "btns" => [
                     "edit" => ["name" => "编辑", "refersh" => true],
                     "del" => ["name" => "删除", "confirm" => true, "class" => "layui-btn-danger"],
                 ]]
             ]],
+            "toolbar" => [
+                ["name" => "编辑", "url" => url('add')]
+            ]
         ];
         $this->assign('tableConfig', $tableConfig);
-        return $this->fetch();
+        return $this->fetch('public:index');
     }
 }

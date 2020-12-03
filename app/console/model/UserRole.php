@@ -8,7 +8,7 @@ use think\Model;
 /**
  * @mixin \think\Model
  */
-class UserRole extends Model
+class UserRole extends BaseModel
 {
     //
 }

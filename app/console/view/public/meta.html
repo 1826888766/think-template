@@ -62,6 +62,7 @@
 {load href="/static/lib/layui/layui.js" /}
 {load href="/static/js/jquery.min.js" /}
 {load href="/static/js/xadmin.js" /}
+{load href="/static/js/common.js" /}
 <script>
     layui.config({
         base: "/static/lib/modules/"
@@ -91,7 +92,8 @@
                 layer.open({
                     content: url,
                     title: title,
-                    type: 2
+                    type: 2,
+                    area:["900px","750px"]
                 })
             } else {
                 if ('{$iframe?1:0}' === '1') {
