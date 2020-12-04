@@ -24,9 +24,6 @@ body{
     color: red;
 }
 
-.layui-form-switch{
-    margin-top: 0px;
-}
 .layui-input:focus, .layui-textarea:focus {
     border-color: #189f92!important;
 }
