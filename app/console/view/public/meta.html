@@ -49,6 +49,10 @@
         left: 0;
         overflow: auto !important;
     }
+    .layui-upload-list img{
+        width: 100px;
+        height: 100px;
+    }
 </style>
 <!-- 让IE8/9支持媒体查询，从而兼容栅格 -->
 <!--[if lt IE 9]>
@@ -62,7 +66,6 @@
 {load href="/static/lib/layui/layui.js" /}
 {load href="/static/js/jquery.min.js" /}
 {load href="/static/js/xadmin.js" /}
-{load href="/static/js/common.js" /}
 <script>
     layui.config({
         base: "/static/lib/modules/"
